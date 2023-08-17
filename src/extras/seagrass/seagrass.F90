@@ -34,11 +34,10 @@
 !  Original author(s): Hans Burchard & Karsten Bolding
 !
    REALTYPE, dimension(:), allocatable :: xx,yy
-   REALTYPE, dimension(:), allocatable :: exc,vfric,grassz,xxP
+   REALTYPE, dimension(:), allocatable :: exc,vfric,grassz,xxP,xp_rat
    logical                   :: init_output
 !  from a namelist
    character(len=PATH_MAX)   :: grassfile='seagrass.dat'
-   REALTYPE                  :: XP_rat
    integer                   :: grassind
    integer                   :: grassn
    integer                   :: out_unit
@@ -82,7 +81,7 @@
 ! !LOCAL VARIABLES:
    integer                   :: i,rc
    REALTYPE                  :: z
-   namelist /canopy/  seagrass_calc,grassfile,XP_rat
+   namelist /canopy/  seagrass_calc,grassfile
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -125,12 +124,16 @@
       if (rc /= 0) STOP 'init_seagrass: Error allocating (vfric)'
       vfric = _ZERO_
 
+      allocate(xp_rat(0:grassn),stat=rc)
+      if (rc /= 0) STOP 'init_seagrass: Error allocating (vfric)'
+      xp_rat = _ZERO_
+
       allocate(grassz(0:grassn),stat=rc)
       if (rc /= 0) STOP 'init_seagrass: Error allocating (grassz)'
       grassz = _ZERO_
 
       do i=1,grassn
-         read(unit,*) grassz(i),exc(i),vfric(i)
+         read(unit,*) grassz(i),exc(i),vfric(i),xp_rat(i)
       end do
 
       z=0.5*h(1)
@@ -238,6 +241,7 @@
    REALTYPE                  :: dist
    REALTYPE                  :: grassfric(0:nlev)
    REALTYPE                  :: excur(0:nlev)
+   REALTYPE                  :: effic_xp(0:nlev)
    REALTYPE                  :: z(0:nlev)
 !EOP
 !-----------------------------------------------------------------------
@@ -252,6 +256,7 @@
 
       call gridinterpol(grassn,1,grassz,exc,nlev,z,excur)
       call gridinterpol(grassn,1,grassz,vfric,nlev,z,grassfric)
+      call gridinterpol(grassn,1,grassz,xp_rat,nlev,z,effic_xp)
 
       do i=1,grassind
          xx(i)=xx(i)+dt*u(i)                ! Motion of seagrass elements with
@@ -265,7 +270,7 @@
             drag(i)=drag(i)+grassfric(i)
 
 !           Extra turbulence production by seagrass friction
-            xxP(i)=xP_rat*grassfric(i)*(sqrt(u(i)**2+v(i)**2))**3
+            xxP(i)=effic_xp(i)*grassfric(i)*(sqrt(u(i)**2+v(i)**2))**3
          else
             xxP(i)=_ZERO_
          end if
