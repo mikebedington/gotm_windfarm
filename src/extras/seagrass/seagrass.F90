@@ -125,7 +125,7 @@
       vfric = _ZERO_
 
       allocate(xp_rat(0:grassn),stat=rc)
-      if (rc /= 0) STOP 'init_seagrass: Error allocating (vfric)'
+      if (rc /= 0) STOP 'init_seagrass: Error allocating (xp_rat)'
       xp_rat = _ZERO_
 
       allocate(grassz(0:grassn),stat=rc)
