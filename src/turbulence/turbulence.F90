@@ -2385,16 +2385,6 @@
         REALTYPE, intent(in), optional      :: xP(0:nlev)
         REALTYPE, intent(in), optional      :: SSCSTK(0:nlev)
       end subroutine production
-      
-      subroutine dissipationeq(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS,xP)
-        integer,  intent(in)                :: nlev
-        REALTYPE, intent(in)                :: dt
-        REALTYPE, intent(in)                :: u_taus,u_taub
-        REALTYPE, intent(in)                :: z0s,z0b
-        REALTYPE, intent(in)                :: h(0:nlev)
-        REALTYPE, intent(in)                :: NN(0:nlev),SS(0:nlev)
-        REALTYPE, intent(in), optional      :: xP(0:nlev)
-      end subroutine dissipationeq
    end interface
 
 !
@@ -2684,6 +2674,19 @@
 !
 ! !USES:
    IMPLICIT NONE
+
+   interface
+      subroutine dissipationeq(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS,xP)
+        integer,  intent(in)                :: nlev
+        REALTYPE, intent(in)                :: dt
+        REALTYPE, intent(in)                :: u_taus,u_taub
+        REALTYPE, intent(in)                :: z0s,z0b
+        REALTYPE, intent(in)                :: h(0:nlev)
+        REALTYPE, intent(in)                :: NN(0:nlev),SS(0:nlev)
+        REALTYPE, intent(in), optional      :: xP(0:nlev)
+      end subroutine dissipationeq
+   end interface
+
 !
 ! !INPUT PARAMETERS:
    integer,  intent(in)                :: nlev
