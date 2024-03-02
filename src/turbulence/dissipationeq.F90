@@ -62,9 +62,9 @@
 ! by setting {\tt length\_lim = .true.} in {\tt gotmturb.nml}.
 !
 ! !USES:
-   use turbulence, only: P,B,PSTK,num
+   use turbulence, only: P,B,PSTK,num,XP
    use turbulence, only: tke,tkeo,k_min,eps,eps_min,L
-   use turbulence, only: ce1,ce2,ce3plus,ce3minus,ce4
+   use turbulence, only: ce1,ce2,ce3plus,ce3minus,ce4,ce5
    use turbulence, only: cm0,cde,galp,length_lim
    use turbulence, only: epsilon_bc, psi_ubc, psi_lbc, ubc_type, lbc_type
    use turbulence, only: sig_e,sig_e0,sig_peps
@@ -94,7 +94,11 @@
 !  square of shear and buoyancy
 !  frequency (1/s^2)
    REALTYPE, intent(in)                :: NN(0:nlev),SS(0:nlev)
-!
+
+!  TKE production due to seagrass
+!  friction (m^2/s^3)
+   REALTYPE, intent(in), optional      :: xP(0:nlev)
+
 ! !REVISION HISTORY:
 !  Original author(s): Lars Umlauf
 !                     (re-write after first version of
@@ -110,6 +114,7 @@
    REALTYPE                  :: avh(0:nlev),sig_eff(0:nlev)
    REALTYPE                  :: Lsour(0:nlev),Qsour(0:nlev)
    REALTYPE                  :: ce3
+   REALTYPE                  :: ce5
 
    integer                   :: i
 !
@@ -147,7 +152,11 @@
       end if
 
       EpsOverTke  = eps(i)/tkeo(i)
-      prod        = ce1*EpsOverTke*P(i) + ce4*EpsOverTke*PSTK(i)
+      if ( PRESENT(xP) ) then
+          prod        = ce1*EpsOverTke*(P(i) - xP(i)) + ce4*EpsOverTke*PSTK(i) + ce5*xP(i)
+      else
+          prod        = ce1*EpsOverTke*P(i) + ce4*EpsOverTke*PSTK(i)
+      endif
       buoyan      = ce3*EpsOverTke*B(i)
       diss        = ce2*EpsOverTke*eps(i)
 

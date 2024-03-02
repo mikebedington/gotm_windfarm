@@ -672,6 +672,8 @@
                    default=1.0_rk)
    call twig%get(ce4, 'ce4', 'empirical coefficient ce4 in dissipation equation', '-', &
                    default=0._rk)
+   call twig%get(ce5, 'ce5', 'empirical coefficient ce5 in dissipation equation', '-', &
+                   default=1._rk)
    call twig%get(sig_k, 'sig_k', 'Schmidt number for TKE diffusivity', '-', &
                    default=1._rk)
    call twig%get(sig_e, 'sig_e', 'Schmidt number for dissipation diffusivity', '-', &
@@ -2233,6 +2235,7 @@
          LEVEL3 'ce4                                  =', ce4         
          LEVEL3 'sig_k                                =', sig_k
          LEVEL3 'sig_e                                =', sig_e
+         LEVEL3 'ce5                                  =', ce5
          LEVEL2 ' '
          LEVEL3 'Value of the stability function'
          LEVEL3 'in the log-law,                   cm0 =', cm0
@@ -2480,7 +2483,11 @@
          call cmue_d(nlev)
          call do_tke(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS)
          call do_kb(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS)
-         call do_lengthscale(nlev,dt,depth,u_taus,u_taub,z0s,z0b,h,NN,SS)
+         if ( PRESENT(xP) ) then
+             call do_lengthscale(nlev,dt,depth,u_taus,u_taub,z0s,z0b,h,NN,SS,xP)         
+         else
+             call do_lengthscale(nlev,dt,depth,u_taus,u_taub,z0s,z0b,h,NN,SS)
+         endif
          call do_epsb(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS)
          call alpha_mnb(nlev,NN,SS)
          call kolpran(nlev)
@@ -2491,7 +2498,11 @@
          call cmue_c(nlev)
          call do_tke(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS)
          call do_kb(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS)
-         call do_lengthscale(nlev,dt,depth,u_taus,u_taub,z0s,z0b,h,NN,SS)
+         if ( PRESENT(xP) ) then
+             call do_lengthscale(nlev,dt,depth,u_taus,u_taub,z0s,z0b,h,NN,SS,xP)
+         else
+             call do_lengthscale(nlev,dt,depth,u_taus,u_taub,z0s,z0b,h,NN,SS)
+         endif
          call do_epsb(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS)
          call alpha_mnb(nlev,NN,SS)
          call kolpran(nlev)
@@ -2642,7 +2653,7 @@
 !
 ! !INTERFACE:
 
-   subroutine do_lengthscale(nlev,dt,depth,u_taus,u_taub, z0s,z0b,h,NN,SS)
+   subroutine do_lengthscale(nlev,dt,depth,u_taus,u_taub, z0s,z0b,h,NN,SS,xP)
 !
 ! !DESCRIPTION:
 ! Based on the value of {\tt len\_scale\_method},
@@ -2668,6 +2679,10 @@
    REALTYPE, intent(in)                :: dt,depth,u_taus,u_taub,z0s,z0b
    REALTYPE, intent(in)                :: h(0:nlev)
    REALTYPE, intent(in)                :: NN(0:nlev),SS(0:nlev)
+!  TKE production due to seagrass
+!  friction (m^2/s^3)
+   REALTYPE, intent(in), optional      :: xP(0:nlev)
+
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding, Hans Burchard,
@@ -2679,7 +2694,11 @@
 !BOC
    select case(len_scale_method)
       case(diss_eq)
-         call dissipationeq(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS)
+         if ( PRESENT(xP) ) then
+              call dissipationeq(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS,xP)
+         else
+              call dissipationeq(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS)
+         endif
       case(generic_eq)
          call genericeq(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS)
       case(length_eq)
@@ -3824,7 +3843,7 @@
                             gen_d,gen_alpha,gen_l
 
    LEVEL2 'keps namelist',  ce1,ce2,ce3minus,ce3plus,ce4,      &
-                            sig_k,sig_e,sig_peps
+                            sig_k,sig_e,sig_peps,ce5
 
    LEVEL2 'my namelist',    e1,e2,e3, e6, sq,sl,my_length,new_constr
 
