@@ -267,7 +267,7 @@
             yy(i)= excur(i)/dist * yy(i)
 
 !           Increased drag by seagrass friction
-            drag(i)=drag(i)+grassfric(i)
+            drag(i)=drag(i)+effic_xp(i)*rassfric(i)
 
 !           Extra turbulence production by seagrass friction
             xxP(i)=effic_xp(i)*grassfric(i)*(sqrt(u(i)**2+v(i)**2))**3
