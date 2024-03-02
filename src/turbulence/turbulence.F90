@@ -173,6 +173,7 @@
    REALTYPE, public                              :: sig_k
    REALTYPE, public                              :: sig_e
    logical,  public                              :: sig_peps
+   REALTYPE, public                              :: ce5
 
 !  the 'my' namelist
    REALTYPE, public                              :: e1

@@ -5,7 +5,7 @@
 ! !ROUTINE: The dynamic epsilon-equation \label{sec:dissipationeq}
 !
 ! !INTERFACE:
-   subroutine dissipationeq(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS)
+   subroutine dissipationeq(nlev,dt,u_taus,u_taub,z0s,z0b,h,NN,SS,xP)
 
 ! !DESCRIPTION:
 ! The $k$-$\epsilon$ model in its form suggested by \cite{Rodi87} has been
@@ -62,7 +62,7 @@
 ! by setting {\tt length\_lim = .true.} in {\tt gotmturb.nml}.
 !
 ! !USES:
-   use turbulence, only: P,B,PSTK,num,XP
+   use turbulence, only: P,B,PSTK,num
    use turbulence, only: tke,tkeo,k_min,eps,eps_min,L
    use turbulence, only: ce1,ce2,ce3plus,ce3minus,ce4,ce5
    use turbulence, only: cm0,cde,galp,length_lim
@@ -114,7 +114,6 @@
    REALTYPE                  :: avh(0:nlev),sig_eff(0:nlev)
    REALTYPE                  :: Lsour(0:nlev),Qsour(0:nlev)
    REALTYPE                  :: ce3
-   REALTYPE                  :: ce5
 
    integer                   :: i
 !
